@@ -509,3 +509,24 @@ function main(dynamic_gid){
 dynamicPage.main = main;
 
 })();
+
+function setStimulusParamAndRedrawChart(baseUrl, methodToCall, fieldName, fieldValue, type) {
+    let currentParam = fieldName + '=' + fieldValue;
+    let url = methodToCall + '/' + type + '?' + currentParam;
+        if (baseUrl !== 'None') {
+            url = baseUrl + '/' + url
+        }
+    $.ajax({
+        url: url,
+        type: 'POST',
+        success: function () {
+            // plotEquation(baseUrl)
+        }
+    })
+}
+
+function setEventsOnFormFields(param, url, boolparam, div_id) {
+    $('#' + div_id + ' input').change(function () {
+        setStimulusParamAndRedrawChart(url, 'integrator_parameters_changed', this.name, this.value, param)
+    });
+}

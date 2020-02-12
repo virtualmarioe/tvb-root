@@ -197,7 +197,13 @@ class DynamicModelController(BurstBaseController):
     @handle_error(redirect=False)
     @check_user
     def refresh_subform(self, field_value, mapping_key):
+        # TODO: set current integrator/noise/equation in session dynamic
         return {'form': SubformHelper().get_subform_for_field_value(field_value, mapping_key)}
+
+    @expose_json
+    def integrator_parameters_changed(self, type, **param):
+        # TODO: determine current parameter and set it in session for redraw
+        return ''
 
     @staticmethod
     def _configure_integrator_noise(integrator, model):
