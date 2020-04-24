@@ -23,7 +23,6 @@ pipeline {
                 sh '''#!/bin/bash
                     cd tvb_build
                     bash create_pip_env.sh
-                    bash install_full_tvb.sh
                     cd ..
                     python3 tvb_build/setup_mac.py py2app
                 '''
