@@ -1,0 +1,39 @@
+pipeline {
+    agent { label 'TVB_Mac_Node' }
+
+    stages {
+        stage('Copy Step 1') {
+             steps {
+                 sh '''#!/bin/bash
+                       rm -R -f tvb_build/build
+                 '''
+                 step ([$class: 'CopyArtifact',
+                     projectName: 'TVB - Step1',
+                     selector: lastSuccessful(),
+                     filter: 'tvb_build/build/TVB_build_step1.zip']);
+                 sh '''#!/bin/bash
+                       ls -all tvb_build/build
+                 '''
+                 stash includes: 'tvb_build/build/TVB_build_step1.zip', name: 'step1'
+             }
+        }
+        stage ('Build TVB Distribution') {
+            steps {
+                unstash 'step1'
+                sh '''#!/bin/bash
+                    python3 tvb_build/setup_mac.py py2app
+                '''
+            }
+        }
+    }
+    post {
+        changed {
+            mail to: 'bogdan.valean@codemart.ro',
+            subject: "Jenkins Pipeline ${currentBuild.fullDisplayName} changed status",
+            body: """
+                Result: ${currentBuild.result}
+                Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'
+                Check console output at ${env.BUILD_URL}"""
+        }
+    }
+}
