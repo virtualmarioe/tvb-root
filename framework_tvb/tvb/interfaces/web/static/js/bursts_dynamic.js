@@ -486,7 +486,7 @@ var debouncedOnIntegratorChanged = $.debounce( DEBOUNCE_DELAY, onIntegratorChang
 
 function onLeftInputTreeChange(){
     var state = getSubmitableData('left_input_tree');
-    onModelChanged(state._model);
+    onModelChanged(state.model);
 }
 
 function onIntegratorInputTreeChange(){
