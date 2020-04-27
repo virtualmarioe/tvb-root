@@ -8,6 +8,7 @@ pip3 install conda-forge jupyterlab flask gevent
 pip3 install h5py>=2.10 formencode cfflib jinja2 nibabel sqlalchemy==1.1.14 sqlalchemy-migrate==0.11.0 allensdk
 pip3 install tvb-gdist typing BeautifulSoup4 subprocess32 flask-restplus python-keycloak mako
 pip3 install py2app docutils apscheduler pyobjc
+pip3 install tornado ipykernel ipykernel_launcher nbformat lib2to3 llvmlite migrate notebook pkg_resources PyObjCTools tables
 pip3 install --upgrade setuptools
 pip3 install --upgrade distribute
 
