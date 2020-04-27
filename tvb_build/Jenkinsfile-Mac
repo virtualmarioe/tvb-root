@@ -26,12 +26,13 @@ pipeline {
                     cd ..
                     python3 tvb_build/setup_mac.py py2app
                 '''
+                archiveArtifacts artifacts: 'TVB_Mac*.zip'
             }
         }
     }
     post {
         changed {
-            mail to: 'bogdan.valean@codemart.ro',
+            mail to: 'lia.domide@codemart.ro bogdan.valean@codemart.ro',
             subject: "Jenkins Pipeline ${currentBuild.fullDisplayName} changed status",
             body: """
                 Result: ${currentBuild.result}
