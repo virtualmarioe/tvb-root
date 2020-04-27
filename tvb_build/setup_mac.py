@@ -78,7 +78,7 @@ PY2APP_INCLUDES = ['allensdk', 'cfflib', 'cmath', 'contextlib', 'formencode', 'g
                    'jinja2', 'jinja2.ext', 'jsonschema',
                    'logging.config', 'markupsafe', 'matplotlib', 'mpl_toolkits.axes_grid', 'nibabel',
                    'numexpr', 'os', 'pandas._libs.skiplist', 'psycopg2',
-                   'pygments.formatters.html', 'pygments.lexers.python', 'runpy', 'sqlite3', 'sqlalchemy',
+                   'pygments.formatters.html', 'pygments.lexers.python', 'runpy', 'sqlite3', 'sqlalchemy', 'sqlalchemy-migrate'
                    'sqlalchemy.dialects.sqlite', 'sqlalchemy.dialects.postgresql', 'sqlalchemy.sql.default_comparator',
                    'simplejson', 'six', 'StringIO', 'xml.dom', 'xml.dom.minidom', 'zlib', 'zmq']
 
