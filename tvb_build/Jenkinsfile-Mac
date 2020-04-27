@@ -22,7 +22,7 @@ pipeline {
                 unstash 'step1'
                 sh '''#!/bin/bash
                     cd tvb_build
-                    bash create_pip_env.sh
+                    bash create_mac_env.sh
                     cd ..
                     python3 tvb_build/setup_mac.py py2app
                 '''
