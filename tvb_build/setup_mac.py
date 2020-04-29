@@ -72,7 +72,7 @@ EXTRA_MODULES = ['six.moves.BaseHTTPServer']
 
 PY2APP_PACKAGES = ['cherrypy', 'email', 'h5py', 'IPython', 'ipykernel', 'ipykernel_launcher', 'nbformat',
                    'lib2to3', "llvmlite", 'migrate', 'numba', 'notebook', 'numpy', 'pkg_resources',
-                   'PyObjCTools', 'scipy', 'sklearn', 'tables', 'tornado', 'tvb']
+                   'PyObjCTools', 'scipy', 'sklearn', 'sqlalchemy-migrate', 'tables', 'tornado', 'tvb']
 
 PY2APP_INCLUDES = ['allensdk', 'cfflib', 'cmath', 'contextlib', 'formencode', 'gdist',
                    'jinja2', 'jinja2.ext', 'jsonschema',
