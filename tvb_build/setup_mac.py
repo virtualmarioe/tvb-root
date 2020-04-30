@@ -72,7 +72,7 @@ EXTRA_MODULES = ['six.moves.BaseHTTPServer']
 
 PY2APP_PACKAGES = ['cherrypy', 'email', 'h5py', 'IPython', 'ipykernel', 'ipykernel_launcher', 'nbformat',
                    'lib2to3', "llvmlite", 'migrate', 'numba', 'notebook', 'numpy', 'pkg_resources',
-                   'PyObjCTools', 'scipy', 'sklearn', 'sqlalchemy-migrate', 'tables', 'tornado', 'tvb']
+                   'PyObjCTools', 'scipy', 'sklearn', 'tables', 'tornado', 'tvb']
 
 PY2APP_INCLUDES = ['allensdk', 'cfflib', 'cmath', 'contextlib', 'formencode', 'gdist',
                    'jinja2', 'jinja2.ext', 'jsonschema',
@@ -94,6 +94,7 @@ PY2APP_OPTIONS = {'iconfile': 'tvb_build/icon.icns',
                   'resources': [],
                   'excludes': PY2APP_EXCLUDES,
                   'argv_emulation': True,
+                  'site-packages': True,
                   'strip': True,  # TRUE is the default
                   'optimize': '0'}
 
