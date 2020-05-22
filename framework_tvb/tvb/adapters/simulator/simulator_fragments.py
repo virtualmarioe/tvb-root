@@ -31,22 +31,26 @@
 import uuid
 import formencode
 from formencode import validators
+from tvb.adapters.simulator.integrator_forms import get_form_for_integrator
+from tvb.adapters.simulator.subforms_mapping import get_ui_name_to_integrator_dict
 from tvb.core.entities.filters.chain import FilterChain
-from tvb.basic.neotraits.api import Attr, Range
+from tvb.basic.neotraits.api import Attr, Range, List
+from tvb.core.neotraits.view_model import Str
 from tvb.datatypes.cortex import Cortex
 from tvb.datatypes.surfaces import CORTICAL
+from tvb.simulator.integrators import Integrator
+from tvb.simulator.models.base import Model
 from tvb.simulator.simulator import Simulator
-from tvb.adapters.simulator.integrator_forms import get_ui_name_to_integrator_dict
 from tvb.adapters.simulator.model_forms import get_ui_name_to_model
-from tvb.adapters.simulator.monitor_forms import get_ui_name_to_monitor_dict
+from tvb.adapters.simulator.monitor_forms import get_ui_name_to_monitor_dict, get_monitor_to_ui_name_dict
 from tvb.adapters.simulator.range_parameter import RangeParameter
 from tvb.core.adapters.abcadapter import ABCAdapterForm
 from tvb.adapters.datatypes.db.local_connectivity import LocalConnectivityIndex
-from tvb.adapters.datatypes.db.patterns import StimuliSurfaceIndex, StimuliRegionIndex
+from tvb.adapters.datatypes.db.patterns import StimuliSurfaceIndex, StimuliRegionIndex, SpatioTemporalPatternIndex
 from tvb.adapters.datatypes.db.region_mapping import RegionMappingIndex
 from tvb.adapters.datatypes.db.surface import SurfaceIndex
-from tvb.core.neotraits.forms import DataTypeSelectField, SimpleSelectField, ScalarField, ArrayField, SimpleFloatField, \
-    SimpleHiddenField
+from tvb.core.neotraits.forms import DataTypeSelectField, ScalarField, ArrayField, SimpleFloatField, \
+    SimpleHiddenField, SelectField, MultiSelectField
 from tvb.core.neocom import h5
 
 
@@ -56,13 +60,14 @@ class SimulatorSurfaceFragment(ABCAdapterForm):
         conditions = FilterChain(fields=[FilterChain.datatype + '.surface_type'], operations=["=="],
                                  values=[CORTICAL])
         self.surface = DataTypeSelectField(SurfaceIndex, self, name='surface', required=False,
-                                           label=Simulator.surface.label, doc=Simulator.surface.doc, conditions=conditions)
+                                           label=Simulator.surface.label, doc=Simulator.surface.doc,
+                                           conditions=conditions)
 
     def fill_from_trait(self, trait):
         # type: (Simulator) -> None
         if trait.surface:
-            if hasattr(trait.surface, 'fk_surface_gid'):
-                self.surface.data = trait.surface.fk_surface_gid.hex
+            if hasattr(trait.surface, 'surface_gid'):
+                self.surface.data = trait.surface.surface_gid.hex
         else:
             self.surface.data = None
 
@@ -99,7 +104,7 @@ class SimulatorStimulusFragment(ABCAdapterForm):
     def __init__(self, prefix='', project_id=None, is_surface_simulation=False):
         super(SimulatorStimulusFragment, self).__init__(prefix, project_id)
         if is_surface_simulation:
-            stimuli_index_class = StimuliSurfaceIndex
+            stimuli_index_class = SpatioTemporalPatternIndex
         else:
             stimuli_index_class = StimuliRegionIndex
         self.stimulus = DataTypeSelectField(stimuli_index_class, self, name='region_stimuli', required=False,
@@ -116,12 +121,12 @@ class SimulatorStimulusFragment(ABCAdapterForm):
 class SimulatorModelFragment(ABCAdapterForm):
     def __init__(self, prefix='', project_id=None):
         super(SimulatorModelFragment, self).__init__(prefix, project_id)
-
         self.model_choices = get_ui_name_to_model()
+        default_model = list(self.model_choices.values())[0]
 
-        self.model = SimpleSelectField(choices=self.model_choices, form=self, name='model', required=True,
-                                       label=Simulator.model.label, doc=Simulator.model.doc)
-        self.model.template = "form_fields/select_field.html"
+        self.model = SelectField(
+            Attr(Model, default=default_model, label=Simulator.model.label, doc=Simulator.model.doc), self,
+            choices=self.model_choices, name='model')
 
     def fill_from_trait(self, trait):
         # type: (Simulator) -> None
@@ -132,13 +137,13 @@ class SimulatorIntegratorFragment(ABCAdapterForm):
 
     def __init__(self, prefix='', project_id=None):
         super(SimulatorIntegratorFragment, self).__init__(prefix, project_id)
-
         self.integrator_choices = get_ui_name_to_integrator_dict()
+        default_integrator = list(self.integrator_choices.values())[0]
 
-        self.integrator = SimpleSelectField(choices=self.integrator_choices, form=self, name='integrator',
-                                            required=True,
-                                            label=Simulator.integrator.label, doc=Simulator.integrator.doc)
-        self.integrator.template = "form_fields/select_field.html"
+        self.integrator = SelectField(Attr(Integrator, default=default_integrator, label=Simulator.integrator.label,
+                                           doc=Simulator.integrator.doc), self, name='integrator',
+                                      choices=self.integrator_choices,
+                                      subform=get_form_for_integrator(default_integrator))
 
     def fill_from_trait(self, trait):
         # type: (Simulator) -> None
@@ -149,16 +154,18 @@ class SimulatorMonitorFragment(ABCAdapterForm):
 
     def __init__(self, prefix='', project_id=None, is_surface_simulation=False):
         super(SimulatorMonitorFragment, self).__init__(prefix, project_id)
-
         self.monitor_choices = get_ui_name_to_monitor_dict(is_surface_simulation)
+        self.is_surface_simulation = is_surface_simulation
 
-        self.monitor = SimpleSelectField(choices=self.monitor_choices, form=self, name='monitor', required=True,
-                                         label=Simulator.monitors.label, doc=Simulator.monitors.doc)
-        self.monitor.template = "form_fields/select_field.html"
+        self.monitors = MultiSelectField(List(of=str, label='Monitors',
+                                              choices=tuple(self.monitor_choices.keys())),
+                                         self, name='monitors')
 
     def fill_from_trait(self, trait):
         # type: (Simulator) -> None
-        self.monitor.data = trait.monitors[0].__class__
+        self.monitors.data = [
+            get_monitor_to_ui_name_dict(self.is_surface_simulation)[type(monitor)]
+            for monitor in trait]
 
 
 class SimulatorFinalFragment(ABCAdapterForm):
@@ -198,10 +205,10 @@ class SimulatorPSEConfigurationFragment(ABCAdapterForm):
 
     def __init__(self, choices, prefix='', project_id=None):
         super(SimulatorPSEConfigurationFragment, self).__init__(prefix, project_id)
-        self.pse_param1 = SimpleSelectField(choices, form=self, name='pse_param1', required=True, label="PSE param1")
-        self.pse_param1.template = "form_fields/select_field.html"
-        self.pse_param2 = SimpleSelectField(choices, form=self, name='pse_param2', label="PSE param2")
-        self.pse_param2.template = "form_fields/select_field.html"
+        default_choice = list(choices.values())[0]
+        self.pse_param1 = SelectField(Str(default=default_choice, label="PSE param1"), self, choices=choices,
+                                      name='pse_param1')
+        self.pse_param2 = SelectField(Str(label="PSE param2", required=False), self, choices=choices, name='pse_param2')
 
 
 class SimulatorPSERangeFragment(ABCAdapterForm):

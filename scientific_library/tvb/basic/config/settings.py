@@ -47,7 +47,7 @@ class VersionSettings(object):
     """
 
     # Current release number
-    BASE_VERSION = "2.0.5"
+    BASE_VERSION = "2.0.6"
 
     # Current DB version. Increment this and create a new xxx_update_db.py migrate script
     DB_STRUCTURE_VERSION = 18
@@ -202,7 +202,7 @@ class WebSettings(object):
     Web related specifications
     """
 
-    LOCALHOST = "127.0.0.1"
+    LOCALHOST = "localhost"
     RENDER_HTML = True
     VISUALIZERS_ROOT = "tvb.interfaces.web.templates.jinja2.visualizers"
 

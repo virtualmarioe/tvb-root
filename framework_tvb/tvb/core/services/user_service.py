@@ -136,7 +136,7 @@ class UserService:
                     default_prj_id = dao.get_project_by_gid(DEFAULT_PROJECT_GID).id
                     dao.add_members_to_project(default_prj_id, [user.id])
                 except Exception:
-                    self.logger.warning(
+                    self.logger.exception(
                         "Could not link user_id: %d with project_gid: %s " % (user.id, DEFAULT_PROJECT_GID))
 
             return TEXT_DISPLAY
@@ -197,10 +197,10 @@ class UserService:
                 return False
             user.validated = True
             user = dao.store_entity(user)
-            self.logger.debug("Sending validation email for userName=" + name + " to address=" + user.email)
+            self.logger.debug("Sending validation email for userName=" + user.username + " to address=" + user.email)
             email_sender.send(FROM_ADDRESS, user.email, SUBJECT_VALIDATE,
-                              "Hello " + name + TEXT_VALIDATED + TvbProfile.current.web.BASE_URL + "/user/")
-            self.logger.info("User:" + name + " was validated successfully" + " and notification email sent!")
+                              "Hello " + user.username + TEXT_VALIDATED + TvbProfile.current.web.BASE_URL + "/user/")
+            self.logger.info("User:" + user.username + " was validated successfully" + " and notification email sent!")
             return True
         except Exception as excep:
             self.logger.warning('Could not validate user:')
@@ -375,4 +375,4 @@ class UserService:
             db_user = self._create_external_service_user(user_data)
         else:
             db_user = self._update_external_service_user(db_user, user_data)
-        return db_user
+        return db_user if db_user.validated else None
